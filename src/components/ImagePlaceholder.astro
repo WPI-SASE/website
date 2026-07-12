@@ -1,0 +1,552 @@
+---
+import { existsSync, readdirSync } from 'node:fs';
+import { extname, join } from 'node:path';
+
+interface Props {
+	label: string;
+	folder: string;
+	src?: string;
+	alt?: string;
+	tone?: 'blue' | 'green' | 'gold';
+	carousel?: boolean;
+	variant?: 'hero' | 'feature' | 'tile' | 'portrait';
+	aspect?: 'wide' | 'square' | 'portrait' | 'panorama';
+}
+
+const {
+	label,
+	folder,
+	src,
+	alt,
+	tone = 'blue',
+	carousel = true,
+	variant = 'feature',
+	aspect,
+} = Astro.props;
+
+const imageExtensions = new Set(['.jpg', '.jpeg', '.png', '.webp', '.gif', '.avif']);
+
+const normalizeFolder = (value: string) => {
+	const trimmed = value.replaceAll('\\', '/').replace(/^\/+/, '');
+
+	if (trimmed.startsWith('public/images/')) {
+		return trimmed.replace(/^public\//, '');
+	}
+
+	if (trimmed.startsWith('images/')) {
+		return trimmed;
+	}
+
+	return trimmed;
+};
+
+const imageFolder = normalizeFolder(folder);
+const publicFolderPath = join(process.cwd(), 'public', imageFolder);
+const images = existsSync(publicFolderPath)
+	? readdirSync(publicFolderPath, { withFileTypes: true })
+			.filter((entry) => entry.isFile() && imageExtensions.has(extname(entry.name).toLowerCase()))
+			.map((entry) => `/${imageFolder}/${entry.name}`)
+			.sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
+	: [];
+
+const shuffleImages = (values: string[]) => {
+	const shuffled = [...values];
+
+	for (let index = shuffled.length - 1; index > 0; index -= 1) {
+		const randomIndex = Math.floor(Math.random() * (index + 1));
+		[shuffled[index], shuffled[randomIndex]] = [shuffled[randomIndex], shuffled[index]];
+	}
+
+	return shuffled;
+};
+
+const staticImage = src?.replace(/^\/public\//, '/');
+const staticImagePath = staticImage
+	? join(process.cwd(), 'public', staticImage.replace(/^\/+/, ''))
+	: undefined;
+const hasStaticImage = staticImagePath ? existsSync(staticImagePath) : false;
+const carouselImages = carousel ? shuffleImages(images) : [];
+const shouldRenderCarousel = carouselImages.length > 0;
+const shouldRenderStaticImage = !shouldRenderCarousel && Boolean(staticImage) && hasStaticImage;
+const shouldRenderControls = carouselImages.length > 1;
+const carouselId = `carousel-${Math.random().toString(36).slice(2)}`;
+const firstCarouselImage = carouselImages[0];
+const selectedAspect =
+	aspect ??
+	(variant === 'hero' || variant === 'feature' ? 'wide' : variant === 'portrait' ? 'portrait' : 'square');
+const carouselPath = Astro.url.pathname.replace(/\/$/, '') || '/';
+const carouselKey = `${carouselPath}|${label}|${imageFolder}|${variant}|${selectedAspect}`;
+const hasImage = shouldRenderCarousel || shouldRenderStaticImage;
+---
+
+<figure
+	class:list={[
+		'image-placeholder',
+		tone,
+		`variant-${variant}`,
+		`aspect-${selectedAspect}`,
+		shouldRenderCarousel && 'has-carousel',
+		!hasImage && 'is-empty',
+	]}
+	data-carousel={shouldRenderCarousel ? carouselId : undefined}
+	data-carousel-key={shouldRenderCarousel ? carouselKey : undefined}
+	data-image-loaded={hasImage ? 'true' : undefined}
+>
+	{
+		shouldRenderCarousel && (
+			<>
+				<div class="carousel-track" aria-label={label}>
+					<img src={firstCarouselImage} alt={alt ?? label} loading="eager" data-slide />
+				</div>
+				<script type="application/json" data-carousel-images={carouselId} set:html={JSON.stringify(carouselImages)} />
+			</>
+		)
+	}
+	{
+		shouldRenderStaticImage && (
+			<img
+				src={staticImage}
+				alt={alt ?? label}
+				loading="lazy"
+				onload="this.closest('figure').dataset.imageLoaded = 'true'"
+				onerror="this.remove()"
+			/>
+		)
+	}
+	{
+		shouldRenderControls && (
+			<div class="carousel-controls" aria-label={`${label} controls`}>
+				<button type="button" data-carousel-prev aria-label={`Previous ${label} photo`}>
+					<span aria-hidden="true">‹</span>
+				</button>
+				<div class="carousel-dots" aria-label={`${label} photos`}>
+					{carouselImages.map((_, index) => (
+						<button
+							type="button"
+							data-carousel-dot={index}
+							aria-label={`Show ${label} photo ${index + 1}`}
+							aria-current={index === 0 ? 'true' : undefined}
+						/>
+					))}
+				</div>
+				<button type="button" data-carousel-next aria-label={`Next ${label} photo`}>
+					<span aria-hidden="true">›</span>
+				</button>
+			</div>
+		)
+	}
+	<div class="mark" aria-hidden="true"></div>
+	<figcaption>
+		<strong>{label}</strong>
+		<span>{hasImage ? 'Chapter photo' : 'Photo pending'}</span>
+	</figcaption>
+</figure>
+
+<script>
+	const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+	const carouselStatePrefix = 'sase-carousel:';
+	const pageWindow = window as Window & { __saseCarouselStorageReset?: boolean };
+
+	const resetStoredCarouselsOnRefresh = () => {
+		const navigation = performance.getEntriesByType('navigation')[0] as
+			| PerformanceNavigationTiming
+			| undefined;
+
+		if (navigation?.type !== 'reload') {
+			return;
+		}
+
+		for (let index = sessionStorage.length - 1; index >= 0; index -= 1) {
+			const key = sessionStorage.key(index);
+
+			if (key?.startsWith(carouselStatePrefix)) {
+				sessionStorage.removeItem(key);
+			}
+		}
+	};
+
+	if (!pageWindow.__saseCarouselStorageReset) {
+		resetStoredCarouselsOnRefresh();
+		pageWindow.__saseCarouselStorageReset = true;
+	}
+
+	type StoredCarouselState = {
+		images: string[];
+		activeIndex: number;
+	};
+
+	const hasSameImages = (storedImages: string[], renderedImages: string[]) => {
+		if (storedImages.length !== renderedImages.length) {
+			return false;
+		}
+
+		const sortedStored = [...storedImages].sort();
+		const sortedRendered = [...renderedImages].sort();
+
+		return sortedStored.every((image, index) => image === sortedRendered[index]);
+	};
+
+	const readCarouselState = (key: string, renderedImages: string[]) => {
+		try {
+			const stored = JSON.parse(sessionStorage.getItem(`${carouselStatePrefix}${key}`) ?? 'null') as
+				| StoredCarouselState
+				| null;
+
+			if (
+				stored &&
+				Array.isArray(stored.images) &&
+				Number.isInteger(stored.activeIndex) &&
+				hasSameImages(stored.images, renderedImages)
+			) {
+				return {
+					images: stored.images,
+					activeIndex: Math.max(0, Math.min(stored.activeIndex, stored.images.length - 1)),
+				};
+			}
+		} catch {
+			sessionStorage.removeItem(`${carouselStatePrefix}${key}`);
+		}
+
+		return undefined;
+	};
+
+	const writeCarouselState = (key: string, state: StoredCarouselState) => {
+		sessionStorage.setItem(`${carouselStatePrefix}${key}`, JSON.stringify(state));
+	};
+
+	const setupCarousel = (carousel: HTMLElement) => {
+		if (carousel.dataset.carouselReady === 'true') {
+			return;
+		}
+
+		const slide = carousel.querySelector<HTMLImageElement>('[data-slide]');
+		const dots = Array.from(carousel.querySelectorAll<HTMLElement>('[data-carousel-dot]'));
+		const previous = carousel.querySelector<HTMLButtonElement>('[data-carousel-prev]');
+		const next = carousel.querySelector<HTMLButtonElement>('[data-carousel-next]');
+		const imageDataId = carousel.dataset.carousel;
+		const imageData = imageDataId
+			? document.querySelector<HTMLScriptElement>(`[data-carousel-images="${imageDataId}"]`)
+			: null;
+		const renderedImages = imageData ? (JSON.parse(imageData.textContent ?? '[]') as string[]) : [];
+		const carouselKey = carousel.dataset.carouselKey;
+		const storedState = carouselKey ? readCarouselState(carouselKey, renderedImages) : undefined;
+		const images = storedState?.images ?? renderedImages;
+		let activeIndex = storedState?.activeIndex ?? 0;
+		let interval: number | undefined;
+
+		if (!slide || images.length < 2) {
+			return;
+		}
+
+		carousel.dataset.carouselReady = 'true';
+
+		const preload = (index: number) => {
+			const image = new Image();
+			image.src = images[(index + images.length) % images.length];
+		};
+
+		const setActive = (nextIndex: number) => {
+			activeIndex = (nextIndex + images.length) % images.length;
+			slide.src = images[activeIndex];
+			preload(activeIndex + 1);
+			if (carouselKey) {
+				writeCarouselState(carouselKey, { images, activeIndex });
+			}
+
+			dots.forEach((dot, index) => {
+				if (index === activeIndex) {
+					dot.setAttribute('aria-current', 'true');
+				} else {
+					dot.removeAttribute('aria-current');
+				}
+			});
+		};
+
+		const stop = () => {
+			if (interval !== undefined) {
+				window.clearInterval(interval);
+				interval = undefined;
+			}
+		};
+
+		const start = () => {
+			if (prefersReducedMotion.matches || interval !== undefined) {
+				return;
+			}
+
+			interval = window.setInterval(() => setActive(activeIndex + 1), 5200);
+		};
+
+		previous?.addEventListener('click', () => {
+			setActive(activeIndex - 1);
+			stop();
+			start();
+		});
+
+		next?.addEventListener('click', () => {
+			setActive(activeIndex + 1);
+			stop();
+			start();
+		});
+
+		dots.forEach((dot, index) => {
+			dot.addEventListener('click', () => {
+				setActive(index);
+				stop();
+				start();
+			});
+		});
+
+		carousel.addEventListener('mouseenter', stop);
+		carousel.addEventListener('mouseleave', start);
+		carousel.addEventListener('focusin', stop);
+		carousel.addEventListener('focusout', start);
+		prefersReducedMotion.addEventListener('change', () => {
+			stop();
+			start();
+		});
+
+		setActive(activeIndex);
+		start();
+	};
+
+	const setupCarousels = () => {
+		document.querySelectorAll<HTMLElement>('[data-carousel]').forEach(setupCarousel);
+	};
+
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', setupCarousels, { once: true });
+	} else {
+		setupCarousels();
+	}
+
+	document.addEventListener('astro:page-load', setupCarousels);
+</script>
+
+<style>
+	.image-placeholder {
+		position: relative;
+		width: 100%;
+		max-width: 100%;
+		min-width: 0;
+		min-height: 320px;
+		margin: 0;
+		overflow: hidden;
+		border: 1px solid var(--color-border);
+		border-radius: 8px;
+		background:
+			linear-gradient(135deg, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.56)),
+			linear-gradient(135deg, #d8e5f6 0%, #f5f7fb 52%, #dfe8df 100%);
+	}
+
+	.variant-hero {
+		min-height: clamp(520px, 70vh, 760px);
+	}
+
+	.variant-feature {
+		min-height: clamp(420px, 48vw, 620px);
+	}
+
+	.variant-tile {
+		min-height: 300px;
+	}
+
+	.variant-portrait {
+		min-height: 360px;
+	}
+
+	.aspect-wide {
+		aspect-ratio: 16 / 10;
+	}
+
+	.aspect-square {
+		aspect-ratio: 1;
+	}
+
+	.aspect-portrait {
+		aspect-ratio: 4 / 5;
+	}
+
+	.aspect-panorama {
+		aspect-ratio: 21 / 9;
+	}
+
+	.image-placeholder.green {
+		background:
+			linear-gradient(135deg, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.56)),
+			linear-gradient(135deg, #dceadf 0%, #f7f8f3 50%, #cfddea 100%);
+	}
+
+	.image-placeholder.gold {
+		background:
+			linear-gradient(135deg, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.56)),
+			linear-gradient(135deg, #eadfbf 0%, #f7f8f3 52%, #d7e3ee 100%);
+	}
+
+	img,
+	.carousel-track {
+		position: absolute;
+		inset: 0;
+		z-index: 2;
+		width: 100%;
+		height: 100%;
+	}
+
+	img {
+		object-fit: cover;
+	}
+
+	.image-placeholder[data-image-loaded='true']::before,
+	.image-placeholder[data-image-loaded='true'] .mark,
+	.image-placeholder[data-image-loaded='true'] figcaption {
+		display: none;
+	}
+
+	.image-placeholder.is-empty figcaption {
+		z-index: 1;
+	}
+
+	.image-placeholder::before {
+		position: absolute;
+		inset: 18px;
+		content: '';
+		border: 1px solid rgba(30, 52, 76, 0.18);
+		border-radius: 6px;
+	}
+
+	.mark {
+		position: absolute;
+		top: 28px;
+		right: 28px;
+		width: 72px;
+		height: 72px;
+		border: 1px solid rgba(30, 52, 76, 0.18);
+		border-radius: 50%;
+	}
+
+	.mark::before,
+	.mark::after {
+		position: absolute;
+		content: '';
+		background: rgba(30, 52, 76, 0.24);
+	}
+
+	.mark::before {
+		top: 35px;
+		left: 14px;
+		width: 44px;
+		height: 1px;
+	}
+
+	.mark::after {
+		top: 14px;
+		left: 35px;
+		width: 1px;
+		height: 44px;
+	}
+
+	figcaption {
+		position: absolute;
+		left: 28px;
+		right: 28px;
+		bottom: 28px;
+		display: grid;
+		gap: 8px;
+	}
+
+	strong {
+		color: var(--color-text);
+		font-size: 1.04rem;
+	}
+
+	span {
+		color: var(--color-muted);
+		font-size: 0.88rem;
+		line-height: 1.4;
+	}
+
+	.carousel-controls {
+		position: absolute;
+		right: 14px;
+		bottom: 14px;
+		left: 14px;
+		z-index: 3;
+		display: grid;
+		grid-template-columns: 36px minmax(0, 1fr) 36px;
+		gap: 10px;
+		align-items: center;
+		pointer-events: none;
+	}
+
+	.carousel-controls button {
+		display: inline-flex;
+		width: 36px;
+		height: 36px;
+		align-items: center;
+		justify-content: center;
+		border: 1px solid rgba(255, 255, 255, 0.76);
+		border-radius: 999px;
+		background: rgba(20, 52, 83, 0.7);
+		color: #ffffff;
+		cursor: pointer;
+		font: inherit;
+		font-size: 1.6rem;
+		line-height: 1;
+		pointer-events: auto;
+		transition:
+			background 180ms ease,
+			transform 180ms ease;
+	}
+
+	.carousel-controls button:hover,
+	.carousel-controls button:focus-visible {
+		background: rgba(20, 52, 83, 0.92);
+		transform: translateY(-1px);
+	}
+
+	.carousel-dots {
+		display: flex;
+		min-width: 0;
+		align-items: center;
+		justify-content: center;
+		gap: 6px;
+		overflow: hidden;
+	}
+
+	.carousel-dots button {
+		width: 8px;
+		height: 8px;
+		flex: 0 0 auto;
+		padding: 0;
+		border-color: rgba(255, 255, 255, 0.85);
+		background: rgba(255, 255, 255, 0.45);
+		font-size: 0;
+	}
+
+	.carousel-dots button[aria-current='true'] {
+		width: 20px;
+		background: #ffffff;
+	}
+
+	@media (max-width: 720px) {
+		.image-placeholder,
+		.variant-hero,
+		.variant-feature,
+		.variant-tile,
+		.variant-portrait {
+			min-height: 300px;
+		}
+
+		.aspect-panorama,
+		.aspect-wide {
+			aspect-ratio: 4 / 3;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.carousel-track img,
+		.carousel-controls button {
+			transition: none;
+		}
+	}
+</style>

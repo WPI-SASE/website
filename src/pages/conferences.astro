@@ -1,0 +1,85 @@
+---
+import ImagePlaceholder from '../components/ImagePlaceholder.astro';
+import Layout from '../layouts/Layout.astro';
+
+const conferences = [
+	{
+		title: 'STEM Connect',
+		folder: '/public/images/conferences/conference-one',
+		alt: 'Members attending STEM Connect',
+		text: 'SASE national conference experience. Career development, employers, peers, broader professional community.',
+	},
+	{
+		title: 'NERC',
+		folder: '/public/images/conferences/conference-two',
+		alt: 'Members attending the Northeast Regional Conference',
+		text: 'Northeast Regional Conference. Nearby chapters, focused networking, shared learning, cross-campus relationships.',
+	},
+];
+---
+
+<Layout
+	title="Conferences | SASE Student Chapter"
+	description="Learn about the chapter's two yearly conferences."
+>
+	<section class="hero">
+		<div>
+			<p class="eyebrow">Conferences</p>
+			<h1>Members step into the wider professional network.</h1>
+			<p class="lead">
+				Conference travel turns preparation into presence: members meet peers, employers, and
+				the broader SASE community.
+			</p>
+		</div>
+		<ImagePlaceholder
+			label="Conference travel photo"
+			folder="/public/images/conferences/conference-one"
+			alt="Students traveling to a conference"
+			variant="hero"
+			aspect="wide"
+		/>
+	</section>
+
+	<section class="page-section compact">
+		<div class="conference-list">
+			{
+				conferences.map((conference, index) => (
+					<article class="conference-row media-card">
+						<ImagePlaceholder
+							label={conference.title}
+							folder={conference.folder}
+							alt={conference.alt}
+							tone={index === 0 ? 'blue' : 'green'}
+							variant="feature"
+							aspect="wide"
+						/>
+						<div class="media-caption">
+							<p class="kicker">Yearly conference</p>
+							<h2>{conference.title}</h2>
+							<p>{conference.text}</p>
+						</div>
+					</article>
+				))
+			}
+		</div>
+	</section>
+</Layout>
+
+<style>
+	.conference-list {
+		display: grid;
+		gap: 28px;
+	}
+
+	.conference-row {
+		min-height: clamp(460px, 54vw, 680px);
+	}
+
+	.conference-row h2 {
+		font-size: clamp(1.55rem, 3vw, 2.2rem);
+	}
+
+	.conference-row :global(.image-placeholder) {
+		min-height: clamp(460px, 54vw, 680px);
+	}
+</style>

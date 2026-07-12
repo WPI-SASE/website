@@ -1,0 +1,154 @@
+---
+import ImagePlaceholder from '../components/ImagePlaceholder.astro';
+import Layout from '../layouts/Layout.astro';
+
+const pages = [
+	{
+		href: '/about',
+		title: 'About us',
+		text: 'Mission, pillars, and student leaders.',
+		folder: '/public/images/events/general',
+		tone: 'green',
+	},
+	{
+		href: '/programs',
+		title: 'Programs',
+		text: 'Mentorship and annual traditions.',
+		folder: '/public/images/programs/mentor-mentee',
+		tone: 'blue',
+	},
+	{
+		href: '/conferences',
+		title: 'Conferences',
+		text: 'Professional community beyond campus.',
+		folder: '/public/images/conferences/conference-one',
+		tone: 'blue',
+	},
+	{
+		href: '/events',
+		title: 'Events',
+		text: 'Culture, career, service, and community.',
+		folder: '/public/images/events/general',
+		tone: 'gold',
+	},
+	{
+		href: '/sponsorship',
+		title: 'Sponsorship',
+		text: 'Partner with future technical leaders.',
+		folder: '/public/images/sponsorship/impact',
+		tone: 'green',
+	},
+	{
+		href: '/get-involved',
+		title: 'Get involved',
+		text: 'Student leadership in motion.',
+		folder: '/public/images/programs/senior-banquet',
+		tone: 'gold',
+	},
+];
+---
+
+<Layout
+	title="SASE Student Chapter | Home"
+	description="A professional school club website for leadership, service, culture, and career development."
+>
+	<section class="hero media-first">
+		<div class="media-card home-hero">
+			<ImagePlaceholder
+				label="WPI SASE chapter community"
+				folder="/public/images/events/general"
+				alt="Students gathering at a WPI SASE chapter event"
+				tone="green"
+				variant="hero"
+				aspect="panorama"
+			/>
+			<div class="media-caption hero-caption">
+				<p class="eyebrow">WPI Chapter</p>
+				<h1>Society of Asian Scientists and Engineers</h1>
+				<p>Student leadership, culture, service, and career growth made visible.</p>
+				<div class="button-row">
+					<a class="button" href="/sponsorship">Sponsor us</a>
+					<a class="button secondary" href="/programs">See programs</a>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<section class="page-section compact">
+		<div class="section-heading">
+			<p class="eyebrow">Explore the chapter</p>
+			<h2>Start with the moments, then follow the story.</h2>
+		</div>
+		<div class="grid three">
+			{
+				pages.map((page) => (
+					<a class="page-link media-card" href={page.href}>
+						<ImagePlaceholder
+							label={page.title}
+							folder={page.folder}
+							alt={`${page.title} chapter photo`}
+							tone={page.tone}
+							variant="tile"
+							aspect="square"
+						/>
+						<div class="media-caption">
+							<h3>{page.title}</h3>
+							<p>{page.text}</p>
+						</div>
+					</a>
+				))
+			}
+		</div>
+	</section>
+</Layout>
+
+<style>
+	.page-link {
+		min-height: 320px;
+		text-decoration: none;
+		transition:
+			box-shadow 180ms ease,
+			transform 180ms ease;
+	}
+
+	.page-link:hover,
+	.page-link:focus-visible {
+		box-shadow: var(--shadow-soft);
+		transform: translateY(-2px);
+	}
+
+	.home-hero :global(.image-placeholder) {
+		min-height: clamp(540px, 72vh, 760px);
+	}
+
+	.hero-caption {
+		max-width: min(620px, calc(100% - 32px));
+	}
+
+	.hero-caption .button.secondary {
+		border-color: rgba(255, 255, 255, 0.68);
+		color: #ffffff;
+	}
+
+	@media (max-width: 620px) {
+		.home-hero {
+			background: var(--color-primary-dark);
+		}
+
+		.home-hero .hero-caption {
+			position: absolute;
+			right: 12px;
+			bottom: 12px;
+			left: 12px;
+			padding: 14px;
+		}
+
+		.hero-caption h1 {
+			font-size: clamp(1.75rem, 10vw, 2.5rem);
+		}
+
+		.hero-caption .button-row {
+			margin-top: 12px;
+		}
+	}
+</style>

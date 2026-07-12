@@ -1,0 +1,58 @@
+[
+	{
+		"name": "Colin Truong",
+		"role": "President",
+		"bio": "Majors: Computer Science, Robotics Engineering\nFavorite SASE memory: B25' GBM (SASE Suspects)",
+		"image": "/images/about/exec/president.jpg",
+		"imageAlt": "Portrait of Colin Truong, President"
+	},
+	{
+		"name": "Nicole Guan",
+		"role": "Vice President",
+		"bio": "Major: Data Science\nMinor: Financial Technology\nFavorite SASE memory: Senior Banquet 2025",
+		"image": "/images/about/exec/vice-president.jpg",
+		"imageAlt": "Portrait of Nicole Guan, Vice President"
+	},
+	{
+		"name": "Aadi Kumar",
+		"role": "Treasurer",
+		"bio": "Major: Mechanical Engineering\nFavorite SASE memory: B25' GBM",
+		"image": "/images/about/exec/treasurer.jpg",
+		"imageAlt": "Portrait of Aadi Kumar, Treasurer"
+	},
+	{
+		"name": "Myer Cheng",
+		"role": "Secretary",
+		"bio": "Major: Computer Science\nMinor: Electrical & Computer Engineering\nFavorite SASE memory: Mentor Mentee Reveal 2025",
+		"image": "/images/about/exec/secretary.jpg",
+		"imageAlt": "Portrait of Myer Cheng, Secretary"
+	},
+	{
+		"name": "Jules Sangil",
+		"role": "Public Relations Chair",
+		"bio": "Major: Data Science\nFavorite SASE Memory: SASErio",
+		"image": "/images/about/exec/public-relations-chair.jpg",
+		"imageAlt": "Portrait of Jules Sangil, Public Relations Chair"
+	},
+	{
+		"name": "Angelina Voong",
+		"role": "Events Coordinator",
+		"bio": "Major: Robotics Engineering\nMinor: Mechanical Engineering\nFavorite SASE memory: Going to STEM Connect",
+		"image": "/images/about/exec/events-coordinator-1.jpg",
+		"imageAlt": "Portrait of Angelina Voong, Events Coordinator"
+	},
+	{
+		"name": "George Shui",
+		"role": "Events Coordinator",
+		"bio": "Major: Financial Technology\nMinor: Computer Science\nFavorite SASE Memory: SASE's 9th birthday",
+		"image": "/images/about/exec/events-coordinator-2.jpg",
+		"imageAlt": "Portrait of George Shui, Corporate Relations Chair"
+	},
+	{
+		"name": "Luhai Tang",
+		"role": "Membership Chair",
+		"bio": "Major: Robotics Engineering\nMinors: Electrical & Computer Engineering, Manufacturing Engineering\nFavorite SASE memory: Performing BTBT at Senior Banquet 2025",
+		"image": "/images/about/exec/membership-chair.jpg",
+		"imageAlt": "Portrait of Luhai Tang, Membership Chair"
+	}
+]

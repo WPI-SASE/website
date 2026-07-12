@@ -1,0 +1,125 @@
+---
+import ImagePlaceholder from '../components/ImagePlaceholder.astro';
+import Layout from '../layouts/Layout.astro';
+import execMembers from '../data/exec.json';
+
+const pillars = [
+	{
+		title: 'Celebrating Diversity',
+		text: 'Culture belongs in the professional story.',
+	},
+	{
+		title: 'Professional Development',
+		text: 'Members practice skills before opportunity arrives.',
+	},
+	{
+		title: 'Community Service',
+		text: 'Leadership grows through visible care.',
+	},
+];
+---
+
+<Layout
+	title="About Us | SASE WPI"
+	description="Learn about the national organization, chapter pillars, and executive board."
+>
+	<section class="hero">
+		<div>
+			<p class="eyebrow">About us</p>
+			<h1>SASE WPI</h1>
+			<p class="lead">
+				SASE connects students to career development, community, and leadership through
+				programs that sponsors can see in action.
+			</p>
+		</div>
+		<ImagePlaceholder
+			label="National organization or chapter photo"
+			folder="/public/images/about/chapter"
+			alt="Students representing the chapter community"
+			variant="hero"
+			aspect="wide"
+		/>
+	</section>
+
+	<section class="page-section compact">
+		<div class="section-heading">
+			<p class="eyebrow">Our three pillars</p>
+			<h2>The values behind every photo, program, and partnership.</h2>
+		</div>
+		<div class="grid three">
+			{
+				pillars.map((pillar) => (
+					<article class="panel content-panel">
+						<p class="kicker">Pillar</p>
+						<h3>{pillar.title}</h3>
+						<p>{pillar.text}</p>
+					</article>
+				))
+			}
+		</div>
+	</section>
+
+	<section class="page-section">
+		<div class="section-heading">
+			<p class="eyebrow">Executive board</p>
+			<h2>Meet the students leading the chapter this year.</h2>
+		</div>
+		<div class="exec-grid">
+			{
+				execMembers.map((member) => (
+					<article class="exec-card panel">
+						<ImagePlaceholder
+							label={`${member.name} portrait`}
+							folder="/public/images/about/exec"
+							src={member.image}
+							alt={member.imageAlt}
+							carousel={false}
+							variant="portrait"
+							aspect="portrait"
+						/>
+						<div class="content-panel">
+							<p class="kicker">{member.role}</p>
+							<h3>{member.name}</h3>
+							<p>{member.bio}</p>
+						</div>
+					</article>
+				))
+			}
+		</div>
+	</section>
+</Layout>
+
+<style>
+	.exec-grid {
+		display: grid;
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+		gap: 22px;
+	}
+
+	.exec-card {
+		overflow: hidden;
+	}
+
+	.exec-card p:last-child {
+		margin-bottom: 0;
+	}
+
+	.exec-card :global(.image-placeholder) {
+		min-height: 300px;
+		border: 0;
+		border-bottom: 1px solid var(--color-border);
+		border-radius: 8px 8px 0 0;
+	}
+
+	@media (max-width: 1050px) {
+		.exec-grid {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
+
+	@media (max-width: 620px) {
+		.exec-grid {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>

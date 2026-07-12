@@ -1,0 +1,109 @@
+---
+import ImagePlaceholder from '../components/ImagePlaceholder.astro';
+import Layout from '../layouts/Layout.astro';
+
+const eventTypes = [
+	'Career workshops',
+	'Cultural celebrations',
+	'Member socials',
+	'Service initiatives',
+];
+---
+
+<Layout
+	title="Events | SASE Student Chapter"
+	description="Learn about chapter events and member community."
+>
+	<section class="hero">
+		<div>
+			<p class="eyebrow">Events</p>
+			<h1>Community is easiest to understand when you can see it.</h1>
+			<p class="lead">
+				Events bring members together for learning, celebration, service, and the everyday
+				belonging that keeps a chapter active.
+			</p>
+		</div>
+		<ImagePlaceholder
+			label="General event photo"
+			folder="/public/images/events/general"
+			alt="Students attending a chapter event"
+			tone="gold"
+			variant="hero"
+			aspect="wide"
+		/>
+	</section>
+
+	<section class="page-section compact">
+		<div class="section-heading">
+			<p class="eyebrow">What we host</p>
+			<h2>Useful reasons to gather, learn, and stay connected.</h2>
+		</div>
+		<div class="event-mosaic">
+			<div class="media-card featured-event">
+				<ImagePlaceholder
+					label="Chapter event gallery"
+					folder="/public/images/events/general"
+					alt="WPI SASE members at chapter events"
+					tone="gold"
+					variant="feature"
+					aspect="wide"
+				/>
+				<div class="media-caption">
+					<h3>Events across the year</h3>
+					<p>Career readiness and belonging in the same room.</p>
+				</div>
+			</div>
+			<div class="event-labels">
+				{eventTypes.map((eventType) => <span>{eventType}</span>)}
+			</div>
+		</div>
+	</section>
+</Layout>
+
+<style>
+	.event-mosaic {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) minmax(260px, 0.34fr);
+		gap: 18px;
+		align-items: stretch;
+	}
+
+	.featured-event :global(.image-placeholder) {
+		min-height: clamp(520px, 58vw, 720px);
+	}
+
+	.event-labels {
+		margin: 0;
+		display: grid;
+		gap: 14px;
+	}
+
+	.event-labels span {
+		min-height: 116px;
+		display: flex;
+		align-items: flex-end;
+		padding: 18px;
+		border: 1px solid var(--color-border);
+		border-radius: 8px;
+		background: var(--color-surface);
+		color: var(--color-primary-dark);
+		font-weight: 750;
+		box-shadow: var(--shadow-soft);
+	}
+
+	@media (max-width: 820px) {
+		.event-mosaic {
+			grid-template-columns: 1fr;
+		}
+
+		.event-labels {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
+
+	@media (max-width: 520px) {
+		.event-labels {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>

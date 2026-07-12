@@ -1,0 +1,105 @@
+---
+const socialLinks = [
+	{
+		name: 'Instagram',
+		href: 'https://www.instagram.com/',
+		path: 'M7.75 2h8.5A5.75 5.75 0 0 1 22 7.75v8.5A5.75 5.75 0 0 1 16.25 22h-8.5A5.75 5.75 0 0 1 2 16.25v-8.5A5.75 5.75 0 0 1 7.75 2Zm0 2A3.75 3.75 0 0 0 4 7.75v8.5A3.75 3.75 0 0 0 7.75 20h8.5A3.75 3.75 0 0 0 20 16.25v-8.5A3.75 3.75 0 0 0 16.25 4h-8.5Zm4.25 3.25A4.75 4.75 0 1 1 12 16.75a4.75 4.75 0 0 1 0-9.5Zm0 2A2.75 2.75 0 1 0 12 14.75a2.75 2.75 0 0 0 0-5.5Zm5-2.15a1.15 1.15 0 1 1-1.15 1.15A1.15 1.15 0 0 1 17 7.1Z',
+	},
+	{
+		name: 'TikTok',
+		href: 'https://www.tiktok.com/',
+		path: 'M15.6 2c.35 2.6 1.8 4.23 4.4 4.4v3.02a7.06 7.06 0 0 1-4.38-1.43v6.84c0 3.46-2.38 6.05-5.77 6.05A5.73 5.73 0 0 1 4 15.16c0-3.35 2.64-5.8 6.17-5.63v3.14c-1.66-.25-3.04.8-3.04 2.45a2.55 2.55 0 0 0 2.63 2.53c1.6 0 2.65-1.02 2.65-2.9V2h3.19Z',
+	},
+	{
+		name: 'LinkedIn',
+		href: 'https://www.linkedin.com/',
+		path: 'M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM3 10h4v11H3V10Zm6 0h3.82v1.5h.06c.53-.95 1.84-1.95 3.79-1.95 4.05 0 4.8 2.66 4.8 6.12V21h-4v-4.72c0-1.13-.02-2.58-1.57-2.58-1.58 0-1.82 1.23-1.82 2.5V21H9V10Z',
+	},
+];
+---
+
+<footer class="site-footer">
+	<div class="footer-inner">
+		<p>
+			Building a professional, inclusive community for students interested in leadership,
+			service, culture, and career growth.
+		</p>
+		<nav aria-label="Social media links" class="social-links">
+			{
+				socialLinks.map((link) => (
+					<a href={link.href} aria-label={link.name} title={link.name}>
+						<svg viewBox="0 0 24 24" aria-hidden="true">
+							<path d={link.path} />
+						</svg>
+					</a>
+				))
+			}
+		</nav>
+	</div>
+</footer>
+
+<style>
+	.site-footer {
+		border-top: 1px solid var(--color-border);
+		background: var(--color-surface);
+	}
+
+	.footer-inner {
+		width: min(1120px, calc(100% - 32px));
+		margin: 0 auto;
+		padding: 28px 0;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 24px;
+	}
+
+	p {
+		max-width: 680px;
+		margin: 0;
+		color: var(--color-muted);
+		line-height: 1.6;
+	}
+
+	.social-links {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+	}
+
+	a {
+		width: 42px;
+		height: 42px;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		border: 1px solid var(--color-border);
+		border-radius: 8px;
+		color: var(--color-primary);
+		background: #ffffff;
+		transition:
+			border-color 180ms ease,
+			color 180ms ease,
+			transform 180ms ease;
+	}
+
+	a:hover,
+	a:focus-visible {
+		border-color: var(--color-primary);
+		color: var(--color-accent);
+		transform: translateY(-1px);
+	}
+
+	svg {
+		width: 21px;
+		height: 21px;
+		fill: currentColor;
+	}
+
+	@media (max-width: 720px) {
+		.footer-inner {
+			align-items: flex-start;
+			flex-direction: column;
+		}
+	}
+</style>

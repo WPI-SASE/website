@@ -1,0 +1,126 @@
+---
+import ImagePlaceholder from '../components/ImagePlaceholder.astro';
+import Layout from '../layouts/Layout.astro';
+
+const stats = [
+	{ value: '150+', label: 'students reached yearly' },
+	{ value: '20+', label: 'professional and community events' },
+	{ value: '8', label: 'student leaders on executive board' },
+	{ value: '3', label: 'pillars guiding every partnership' },
+];
+
+const reasons = [
+	'Meet motivated technical and leadership talent.',
+	'Fund mentorship, career access, and chapter events.',
+	'Build visibility through recurring student programs.',
+];
+---
+
+<Layout
+	title="Sponsorship | SASE Student Chapter"
+	description="Partner with the chapter to support student leaders and future professionals."
+>
+	<section class="hero">
+		<div>
+			<p class="eyebrow">Sponsorship</p>
+			<h1>Partner with students you can see growing.</h1>
+			<p class="lead">
+				Sponsorship turns into programs, conferences, mentorship, and visible student momentum.
+			</p>
+			<div class="button-row">
+				<a class="button" href="mailto:saseofficers@wpi.edu">Start a conversation</a>
+			</div>
+		</div>
+		<ImagePlaceholder
+			label="Sponsor or professional event photo"
+			folder="/public/images/sponsorship/impact"
+			alt="Students at a professional event"
+			tone="green"
+			variant="hero"
+			aspect="wide"
+		/>
+	</section>
+
+	<section class="page-section compact">
+		<div class="stats-grid">
+			{
+				stats.map((stat) => (
+					<div class="stat panel content-panel">
+						<strong>{stat.value}</strong>
+						<span>{stat.label}</span>
+					</div>
+				))
+			}
+		</div>
+	</section>
+
+	<section class="page-section compact">
+		<div class="sponsor-grid">
+			<div class="section-heading">
+				<p class="eyebrow">Why sponsor</p>
+				<h2>Your support becomes direct student opportunity.</h2>
+				<p class="lead">
+					Strong partnerships lower barriers and bring industry insight into rooms where
+					students can ask real questions.
+				</p>
+			</div>
+			<div class="grid">
+				{
+					reasons.map((reason) => (
+						<article class="panel content-panel">
+							<p>{reason}</p>
+						</article>
+					))
+				}
+			</div>
+		</div>
+	</section>
+</Layout>
+
+<style>
+	.stats-grid {
+		display: grid;
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+		gap: 18px;
+	}
+
+	.stat {
+		display: grid;
+		gap: 8px;
+		min-height: 150px;
+		align-content: end;
+	}
+
+	.stat strong {
+		color: var(--color-primary-dark);
+		font-size: clamp(2rem, 4vw, 3.2rem);
+		line-height: 1;
+	}
+
+	.stat span {
+		color: var(--color-muted);
+		font-weight: 700;
+	}
+
+	.sponsor-grid {
+		display: grid;
+		grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+		gap: 34px;
+		align-items: start;
+	}
+
+	.sponsor-grid .section-heading {
+		margin-bottom: 0;
+	}
+
+	.sponsor-grid article p {
+		margin: 0;
+	}
+
+	@media (max-width: 900px) {
+		.stats-grid,
+		.sponsor-grid {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>

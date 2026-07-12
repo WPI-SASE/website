@@ -1,0 +1,84 @@
+---
+import ImagePlaceholder from '../components/ImagePlaceholder.astro';
+import Layout from '../layouts/Layout.astro';
+
+const programs = [
+	{
+		title: 'SASE Stands Up',
+		folder: '/public/images/programs/mentor-mentee',
+		alt: 'Students participating in a community service program',
+		tone: 'blue',
+		text: 'Two-week fundraising initiative. Creative service events, local impact, committee-led growth.',
+	},
+	{
+		title: 'Senior Banquet',
+		folder: '/public/images/programs/senior-banquet',
+		alt: 'Students attending a professional development session',
+		tone: 'gold',
+		text: 'Graduating class celebration. Senior gifts, banquet programs, entertainment, performances, executive board communication, volunteer coordination.',
+	},
+];
+---
+
+<Layout
+	title="Programs | SASE Student Chapter"
+	description="Explore the chapter's two yearly programs."
+>
+	<section class="hero">
+		<div>
+			<p class="eyebrow">Programs</p>
+			<h1>Programs members remember in pictures.</h1>
+			<p class="lead">
+				Structured mentorship and annual traditions give sponsors a clear view of the students
+				their support reaches.
+			</p>
+		</div>
+		<ImagePlaceholder
+			label="Program group photo"
+			folder="/public/images/programs/mentor-mentee"
+			alt="Members attending a chapter program"
+			tone="green"
+			variant="hero"
+			aspect="wide"
+		/>
+	</section>
+
+	<section class="page-section compact">
+		<div class="program-list">
+			{
+				programs.map((program) => (
+					<article class="program media-card">
+						<ImagePlaceholder
+							label={program.title}
+							folder={program.folder}
+							alt={program.alt}
+							tone={program.tone}
+							variant="feature"
+							aspect="wide"
+						/>
+						<div class="media-caption">
+							<p class="kicker">Yearly program</p>
+							<h2>{program.title}</h2>
+							<p>{program.text}</p>
+						</div>
+					</article>
+				))
+			}
+		</div>
+	</section>
+</Layout>
+
+<style>
+	.program-list {
+		display: grid;
+		gap: 28px;
+	}
+
+	.program h2 {
+		font-size: clamp(1.55rem, 3vw, 2.2rem);
+	}
+
+	.program :global(.image-placeholder) {
+		min-height: clamp(480px, 56vw, 680px);
+	}
+</style>

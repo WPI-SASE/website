@@ -1,0 +1,77 @@
+---
+import ImagePlaceholder from '../components/ImagePlaceholder.astro';
+import Layout from '../layouts/Layout.astro';
+
+const roles = [
+	{
+		title: 'Executive Board',
+		text: 'Chapter strategy and representation.',
+	},
+	{
+		title: 'Committee Leads',
+		text: 'Focused ownership with board support.',
+	},
+	{
+		title: 'Project Coordinators',
+		text: 'One workshop, event, or initiative.',
+	},
+	{
+		title: 'Member Ambassadors',
+		text: 'Welcoming, feedback, and connection.',
+	},
+];
+---
+
+<Layout
+	title="Get Involved | SASE Student Chapter"
+	description="Learn about leadership roles and ways to get involved in the chapter."
+>
+	<section class="hero">
+		<div>
+			<p class="eyebrow">Get involved</p>
+			<h1>Leadership starts by showing up in the room.</h1>
+			<p class="lead">
+				Members contribute at different levels of time and confidence, then grow into
+				responsibility through visible chapter work.
+			</p>
+		</div>
+		<ImagePlaceholder
+			label="Student leadership in action"
+			folder="/public/images/events/general"
+			alt="WPI SASE members participating in chapter leadership and events"
+			tone="green"
+			variant="hero"
+			aspect="wide"
+		/>
+	</section>
+
+	<section class="page-section compact">
+		<div class="section-heading">
+			<p class="eyebrow">Leadership paths</p>
+			<h2>Start small, then take on more visible responsibility.</h2>
+		</div>
+		<div class="grid four">
+			{
+				roles.map((role) => (
+					<article class="role panel content-panel">
+						<h3>{role.title}</h3>
+						<p>{role.text}</p>
+					</article>
+				))
+			}
+		</div>
+	</section>
+</Layout>
+
+<style>
+	.role {
+		min-height: 190px;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+	}
+
+	.role p {
+		margin-bottom: 0;
+	}
+</style>
