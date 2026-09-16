@@ -220,6 +220,7 @@ const hasImage = shouldRenderCarousel || shouldRenderStaticImage;
 		}
 
 		const slide = carousel.querySelector<HTMLImageElement>('[data-slide]');
+		const dotTrack = carousel.querySelector<HTMLElement>('.carousel-dots');
 		const dots = Array.from(carousel.querySelectorAll<HTMLElement>('[data-carousel-dot]'));
 		const previous = carousel.querySelector<HTMLButtonElement>('[data-carousel-prev]');
 		const next = carousel.querySelector<HTMLButtonElement>('[data-carousel-next]');
@@ -260,6 +261,20 @@ const hasImage = shouldRenderCarousel || shouldRenderStaticImage;
 					dot.removeAttribute('aria-current');
 				}
 			});
+
+			const activeDot = dots[activeIndex];
+			if (dotTrack && activeDot) {
+				const trackBounds = dotTrack.getBoundingClientRect();
+				const dotBounds = activeDot.getBoundingClientRect();
+				dotTrack.scrollTo({
+					left:
+						dotTrack.scrollLeft +
+						dotBounds.left -
+						trackBounds.left -
+						(dotTrack.clientWidth - dotBounds.width) / 2,
+					behavior: prefersReducedMotion.matches ? 'auto' : 'smooth',
+				});
+			}
 		};
 
 		const stop = () => {
@@ -508,9 +523,22 @@ const hasImage = shouldRenderCarousel || shouldRenderStaticImage;
 		display: flex;
 		min-width: 0;
 		align-items: center;
-		justify-content: center;
 		gap: 6px;
-		overflow: hidden;
+		overflow-x: auto;
+		overflow-y: hidden;
+		overscroll-behavior-inline: contain;
+		padding: 8px 0 6px;
+		scrollbar-color: rgba(255, 255, 255, 0.75) transparent;
+		scrollbar-width: thin;
+	}
+
+	.carousel-dots::-webkit-scrollbar {
+		height: 4px;
+	}
+
+	.carousel-dots::-webkit-scrollbar-thumb {
+		border-radius: 999px;
+		background: rgba(255, 255, 255, 0.75);
 	}
 
 	.carousel-dots button {
@@ -521,6 +549,14 @@ const hasImage = shouldRenderCarousel || shouldRenderStaticImage;
 		border-color: rgba(255, 255, 255, 0.85);
 		background: rgba(255, 255, 255, 0.45);
 		font-size: 0;
+	}
+
+	.carousel-dots button:first-child {
+		margin-left: auto;
+	}
+
+	.carousel-dots button:last-child {
+		margin-right: auto;
 	}
 
 	.carousel-dots button[aria-current='true'] {
